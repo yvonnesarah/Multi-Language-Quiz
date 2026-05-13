@@ -1,29 +1,28 @@
 /* =========================
    QUIZ GAME STATE VARIABLES
-   (Global state for quiz logic)
+   (Global state used across the app)
 ========================= */
 
-let score = 0;                // Tracks correct answers
-let totalQuestions = 0;       // Total number of questions in quiz
-let currentIndex = 0;         // Current question index being shown
+let score = 0;              // Current correct answers
+let totalQuestions = 0;     // Total questions in quiz
+let currentIndex = 0;       // Current question index
 
-let questionsData = [];       // Stores fetched quiz questions from API
-let userAnswers = [];         // Stores user responses per question
+let questionsData = [];     // API-loaded questions
+let userAnswers = [];       // Stores user responses
 
-let timer;                    // Holds interval reference for countdown
-let timeLeft = 15;            // Countdown timer per question (seconds)
+let timer;                 // Interval reference for countdown
+let timeLeft = 15;         // Time per question (seconds)
 
-let playerName = "Guest";     // Player name from input field
-let isPaused = false;         // Tracks pause/resume state
-let fiftyUsed = false;        // Tracks if 50/50 lifeline has been used
+let playerName = "Guest";  // Player name from input
+let isPaused = false;      // Pause state flag
+let fiftyUsed = false;     // 50/50 lifeline flag (unused fully yet)
 
 
 /* =========================
         PAGE SWITCHING
-   (Controls UI navigation)
+   Handles navigation between UI pages
 ========================= */
 
-// Shows only the selected page and hides others
 function showPage(page) {
   $("#homePage, #quizPage, #resultsPage").addClass("d-none");
   $(`#${page}`).removeClass("d-none");
@@ -31,80 +30,91 @@ function showPage(page) {
 
 
 /* =========================
-       ANSWER HELPERS
-   (Utility functions for answers)
+       UTIL: DECODE TEXT
+   Safely decodes API text
 ========================= */
 
-// Checks if current question has already been answered
-function isAnswered(index) {
-  return userAnswers[index] !== undefined;
-}
-
-/* Decodes HTML entities returned from OpenTDB API */
-function decodeHTML(str) {
-  return $("<div>").html(str).text().trim();
+function decodeText(str) {
+  if (!str) return "";
+  try {
+    return decodeURIComponent(str);
+  } catch (e) {
+    return str;
+  }
 }
 
 
 /* =========================
-        INITIALIZATION
-   (Runs when DOM is ready)
+   UTIL: SHUFFLE ARRAY
+   Fisher-Yates shuffle algorithm
+========================= */
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+
+/* =========================
+        INIT (DOM READY)
+   Setup event listeners and theme
 ========================= */
 
 $(document).ready(function () {
 
-  // Bind main button events
+  // Start quiz
   $("#startBtn").click(loadQuiz);
+
+  // Navigation buttons
   $("#nextBtn").click(nextQuestion);
   $("#prevBtn").click(prevQuestion);
   $("#restartBtn").click(loadQuiz);
   $("#homeBtn").click(goHome);
+
+  // Pause/resume quiz
   $("#pauseBtn").click(togglePause);
 
-  /* =========================
-            THEME SYSTEM
-     (Dark/Light mode toggle)
-  ========================= */
-
-  // Load saved theme from localStorage
+  // Load saved theme preference
   if (localStorage.getItem("theme") === "light") {
     $("body").addClass("light-mode");
   }
 
-  // Toggle theme and persist preference
+  // Toggle light/dark mode
   $("#themeToggle").click(function () {
     $("body").toggleClass("light-mode");
-
     localStorage.setItem(
       "theme",
       $("body").hasClass("light-mode") ? "light" : "dark"
     );
   });
 
-
   /* =========================
-        50/50 LIFELINE
-     (Removes 2 incorrect options)
+     50/50 LIFELINE FEATURE
+     Removes 2 wrong answers
   ========================= */
 
   $("#fiftyBtn").click(function () {
+    const q = questionsData[currentIndex];
 
-    const q = questionsData[currentIndex];          // current question
-    const buttons = $(".option-btn").toArray();     // all answer buttons
+    const buttons = $(".option-btn").toArray();
 
-    const correct = decodeHTML(q.correct_answer);   // correct answer text
+    // Correct answer stored in hidden div
+    const correct = $(".correct-answer-holder").data("correct");
 
-    // Filter out wrong answer buttons
-    const wrongButtons = buttons.filter(btn => {
-      return decodeHTML($(btn).html()) !== correct;
-    });
+    // Filter wrong answers
+    const wrongButtons = buttons.filter(btn =>
+      $(btn).text().trim() !== correct
+    );
 
-    // Randomly hide two wrong answers
+    // Hide two random wrong options
     shuffle(wrongButtons)
       .slice(0, 2)
       .forEach(btn => $(btn).fadeOut(200));
 
-    // Disable lifeline after use
     $(this).prop("disabled", true);
   });
 
@@ -113,73 +123,90 @@ $(document).ready(function () {
 
 /* =========================
          NAVIGATION
-   (Back to home screen)
+   Return to home screen
 ========================= */
 
 function goHome() {
-  clearInterval(timer);   // stop timer
-  showPage("homePage");   // switch UI
+  clearInterval(timer); // stop timer
+  showPage("homePage");
 }
 
 
 /* =========================
          LOAD QUIZ
-   (Fetch questions from API)
+   Fetch questions from API
 ========================= */
 
 async function loadQuiz() {
+
+  clearInterval(timer);
+  isPaused = false;
+
+  $("#pauseBtn").text("⏸ Pause");
 
   // Reset game state
   score = 0;
   currentIndex = 0;
   userAnswers = [];
-  fiftyUsed = false;
 
-  // Get player name or default
+  // Get player name
   playerName = $("#playerName").val().trim() || "Guest";
 
   showPage("quizPage");
   $("#loader").removeClass("d-none");
 
-  // Get quiz settings from UI
+  // Get settings
   const category = $("#category").val();
   const difficulty = $("#difficulty").val();
   const amount = $("#questionCount").val();
+  const language = $("#language").val() || "en";
 
-  // Fetch questions from OpenTDB API
-  const data = await $.getJSON(
-    `https://opentdb.com/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}&type=multiple`
-  );
+  // OpenTDB API request
+  let url = `https://opentdb.com/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}&type=multiple`;
+
+  const data = await $.getJSON(url);
 
   questionsData = data.results;
   totalQuestions = questionsData.length;
 
   $("#loader").addClass("d-none");
 
+  // Render first question
   renderQuestion();
 }
 
 
 /* =========================
        RENDER QUESTION
-   (Builds UI for each question)
+   Displays current question + options
 ========================= */
 
-function renderQuestion() {
+async function renderQuestion() {
 
   const q = questionsData[currentIndex];
+  const lang = $("#language").val() || "en";
 
-  // Combine correct + incorrect answers and shuffle
-  const options = shuffle([
-    q.correct_answer,
-    ...q.incorrect_answers
-  ]);
+  // Translate question & answers
+  const translatedQuestion = await translateText(q.question, lang);
+  const translatedCorrect = await translateText(q.correct_answer, lang);
 
-  // Create question container
+  const translatedIncorrect = await Promise.all(
+    q.incorrect_answers.map(ans => translateText(ans, lang))
+  );
+
+  // Shuffle all options
+  const options = shuffle([translatedCorrect, ...translatedIncorrect]);
+
+  // Build question card
   const card = $(`
     <div class="question-card ${q.difficulty}">
-      <h5>${q.question}</h5>
+      <h5>${translatedQuestion}</h5>
       <div class="options"></div>
+
+      <!-- hidden correct answer holder -->
+      <div class="correct-answer-holder d-none"
+           data-correct="${translatedCorrect}">
+      </div>
     </div>
   `);
 
@@ -192,23 +219,22 @@ function renderQuestion() {
       </button>
     `);
 
-    // Handle answer selection
+    // Handle answer click
     btn.click(function () {
 
       // Prevent multiple answers
       if (userAnswers[currentIndex]) return;
 
-      const isCorrect =
-        decodeHTML(option) === decodeHTML(q.correct_answer);
+      const isCorrect = option === translatedCorrect;
 
-      // Save user answer
+      // Save answer
       userAnswers[currentIndex] = {
         question: q.question,
         selected: option,
-        correct: q.correct_answer
+        correct: translatedCorrect
       };
 
-      // Update score and show feedback
+      // Score handling
       if (isCorrect) {
         score++;
         showToast("✅ Correct!", "correct");
@@ -234,7 +260,7 @@ function renderQuestion() {
 
 /* =========================
             TIMER
-   (15 second countdown per question)
+   Countdown logic per question
 ========================= */
 
 function startTimer() {
@@ -250,12 +276,12 @@ function startTimer() {
     $("#timerText").text(`⏱️ ${timeLeft}s`);
     $("#timerBarFill").css("width", `${(timeLeft / 15) * 100}%`);
 
-    // If time runs out
+    // Time up handling
     if (timeLeft <= 0) {
       clearInterval(timer);
 
-      // Auto-save "No Answer"
-      if (!isAnswered(currentIndex)) {
+      // Auto-save unanswered
+      if (!userAnswers[currentIndex]) {
         userAnswers[currentIndex] = {
           question: questionsData[currentIndex].question,
           selected: "No Answer",
@@ -274,7 +300,7 @@ function startTimer() {
 
 /* =========================
           PAUSE
-   (Pause / resume timer)
+   Toggle quiz pause/resume
 ========================= */
 
 function togglePause() {
@@ -289,14 +315,15 @@ function togglePause() {
   }
 }
 
+
 /* =========================
      QUESTION NAVIGATION
 ========================= */
 
 function nextQuestion() {
 
-  // Require answer before moving forward
-  if (!isAnswered(currentIndex)) {
+  // Must answer before moving on
+  if (!userAnswers[currentIndex]) {
     showToast("⚠ Please answer first!", "wrong");
     return;
   }
@@ -309,7 +336,6 @@ function nextQuestion() {
   }
 }
 
-// Go to previous question
 function prevQuestion() {
   if (currentIndex > 0) {
     currentIndex--;
@@ -319,13 +345,12 @@ function prevQuestion() {
 
 
 /* =========================
-           RESULTS
+         RESULTS SCREEN
 ========================= */
 
 function showResults() {
 
   clearInterval(timer);
-
   showPage("resultsPage");
 
   const accuracy = Math.round((score / totalQuestions) * 100);
@@ -337,7 +362,7 @@ function showResults() {
     <p>Accuracy: ${accuracy}%</p>
   `);
 
-  // Detailed stats
+  // Stats breakdown
   $("#statsBox").html(`
     <div class="row text-center">
       <div class="col"><h3>${score}</h3><p>Correct</p></div>
@@ -371,13 +396,14 @@ function renderReview() {
 
 /* =========================
         LEADERBOARD
+   Stored in localStorage
 ========================= */
 
 function renderLeaderboard() {
 
   let board = JSON.parse(localStorage.getItem("leaderboard")) || [];
 
-  // Add current game result
+  // Add current result
   board.push({
     name: playerName,
     score,
@@ -386,10 +412,10 @@ function renderLeaderboard() {
     date: new Date().toLocaleString()
   });
 
-  // Sort by score (descending)
+  // Sort by score
   board.sort((a, b) => b.score - a.score);
 
-  // Keep top 10 only
+  // Keep top 10
   board = board.slice(0, 10);
 
   localStorage.setItem("leaderboard", JSON.stringify(board));
@@ -411,27 +437,38 @@ function renderLeaderboard() {
 
 
 /* =========================
-         UTILITIES
+     TRANSLATION API
+   Uses MyMemory API
 ========================= */
 
-// Randomly shuffle array elements
-function shuffle(arr) {
-  return arr.sort(() => Math.random() - 0.5);
+async function translateText(text, targetLang) {
+  if (!text || targetLang === "en") return text;
+
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`;
+    const res = await $.getJSON(url);
+
+    return res.responseData.translatedText || text;
+  } catch (err) {
+    return text;
+  }
 }
 
-// Update progress bar UI
+
+/* =========================
+       UI HELPERS
+========================= */
+
 function updateProgress() {
   const percent = ((currentIndex + 1) / totalQuestions) * 100;
   $("#progressBar").css("width", percent + "%");
   $("#progressText").text(`Q ${currentIndex + 1} / ${totalQuestions}`);
 }
 
-// Update score display UI
 function updateScore() {
   $("#scoreBox").text(`Score: ${score}/${totalQuestions}`);
 }
 
-// Show temporary toast message
 function showToast(msg, type) {
   $("#toast")
     .removeClass()
@@ -441,7 +478,6 @@ function showToast(msg, type) {
   setTimeout(() => $("#toast").removeClass("toast-show"), 1500);
 }
 
-// Disable answer buttons after selection
 function lockAnswer(card) {
   setTimeout(() => {
     card.find("button").prop("disabled", true);
