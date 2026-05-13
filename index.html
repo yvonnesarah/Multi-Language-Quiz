@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
+
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <title>Multi-Language Quiz</title>
@@ -13,6 +15,7 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
 </head>
 
 <body>
@@ -45,136 +48,112 @@
     <!-- HOME PAGE -->
     <section id="homePage">
 
-  <div class="text-center mb-4">
-    <h3>Welcome</h3>
-    <p class="opacity-75">
-      Customize your quiz and start playing
-    </p>
-  </div>
+      <div class="text-center mb-4">
+        <h3>Welcome</h3>
+        <p class="opacity-75">Customize your quiz and start playing</p>
+      </div>
 
-  <div class="settings-box p-4 rounded-4">
+      <div class="settings-box p-4 rounded-4">
 
-    <!-- CATEGORY -->
-    <div class="mb-3">
-      <label class="form-label">Category</label>
-      <select id="category" class="form-select">
-        <option value="9">General Knowledge</option>
-        <option value="10">Books</option>
-        <option value="11">Film</option>
-        <option value="12">Music</option>
-        <option value="17">Science</option>
-        <option value="18">Computers</option>
-        <option value="21">Sports</option>
-        <option value="22">Geography</option>
-        <option value="23">History</option>
-      </select>
-    </div>
+        <!-- PLAYER NAME -->
+        <div class="mb-3">
+          <label class="form-label">Player Name</label>
+          <input type="text" id="playerName" class="form-control" placeholder="Enter your name">
+        </div>
 
-    <!-- DIFFICULTY -->
-    <div class="mb-3">
-      <label class="form-label">Difficulty</label>
-      <select id="difficulty" class="form-select">
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
-    </div>
+        <!-- CATEGORY -->
+        <div class="mb-3">
+          <label class="form-label">Category</label>
+          <select id="category" class="form-select">
+            <option value="9">General Knowledge</option>
+            <option value="10">Books</option>
+            <option value="11">Film</option>
+            <option value="12">Music</option>
+            <option value="17">Science</option>
+            <option value="18">Computers</option>
+            <option value="21">Sports</option>
+            <option value="22">Geography</option>
+            <option value="23">History</option>
+          </select>
+        </div>
 
-    <!-- LANGUAGE -->
-    <div class="mb-3">
-      <label class="form-label">Language</label>
-      <select id="language" class="form-select">
-        <option value="en">English</option>
-        <option value="es">Spanish</option>
-        <option value="fr">French</option>
-        <option value="de">German</option>
-        <option value="hi">Hindi</option>
-        <option value="ar">Arabic</option>
-        <option value="zh">Chinese</option>
-      </select>
-    </div>
+        <!-- DIFFICULTY -->
+        <div class="mb-3">
+          <label class="form-label">Difficulty</label>
+          <select id="difficulty" class="form-select">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
 
-    <!-- QUESTION COUNT -->
-    <div class="mb-4">
-      <label class="form-label">Questions</label>
-      <select id="questionCount" class="form-select">
-        <option value="5">5 Questions</option>
-        <option value="10">10 Questions</option>
-        <option value="15">15 Questions</option>
-      </select>
-    </div>
+        <!-- LANGUAGE -->
+        <div class="mb-3">
+          <label class="form-label">Language</label>
+          <select id="language" class="form-select">
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="hi">Hindi</option>
+            <option value="ar">Arabic</option>
+            <option value="zh">Chinese</option>
+          </select>
+        </div>
 
-    <!-- START BUTTON -->
-    <div class="d-grid">
-      <button id="startBtn" class="btn btn-warning btn-lg fw-bold">
-        🚀 Start Quiz
-      </button>
-    </div>
+        <!-- QUESTIONS -->
+        <div class="mb-4">
+          <label class="form-label">Questions</label>
+          <select id="questionCount" class="form-select">
+            <option value="5">5 Questions</option>
+            <option value="10">10 Questions</option>
+            <option value="15">15 Questions</option>
+          </select>
+        </div>
 
-  </div>
+        <div class="d-grid">
+          <button id="startBtn" class="btn btn-warning btn-lg fw-bold">
+            🚀 Start Quiz
+          </button>
+        </div>
 
-</section>
+      </div>
+
+    </section>
 
     <!-- QUIZ PAGE -->
     <section id="quizPage" class="d-none">
 
-      <!-- PROGRESS -->
-      <div class="mb-3">
-
-        <div class="d-flex justify-content-between">
-
-          <small id="progressText"></small>
-
-          <small id="timerText">⏱️ 15s</small>
-
-        </div>
-
-        <div class="progress">
-
-          <div id="progressBar" class="progress-bar"></div>
-
-        </div>
-
-        <!-- TIMER BAR -->
-        <div class="timer-bar mt-2">
-
-          <div id="timerBarFill"></div>
-
-        </div>
-
+      <div class="mb-3 d-flex justify-content-between">
+        <small id="progressText"></small>
+        <small id="timerText">⏱️ 15s</small>
       </div>
 
-      <!-- NAV -->
+      <div class="progress mb-2">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+
+      <div class="timer-bar mb-3">
+        <div id="timerBarFill"></div>
+      </div>
+
       <div class="d-flex justify-content-between mb-3">
-
-        <button id="prevBtn" class="btn btn-outline-light btn-sm">
-          ⬅ Previous
-        </button>
-
-        <button id="nextBtn" class="btn btn-outline-light btn-sm">
-          Next ➡
-        </button>
-
+        <button id="prevBtn" class="btn btn-outline-light btn-sm">⬅ Previous</button>
+        <button id="nextBtn" class="btn btn-outline-light btn-sm">Next ➡</button>
       </div>
 
-      <!-- LOADER -->
       <div id="loader" class="text-center d-none">
-
         <div class="spinner-border text-warning"></div>
-
         <p class="mt-2">Loading questions...</p>
-
       </div>
 
-      <!-- QUIZ -->
       <div id="quizBox"></div>
 
-      <!-- SCORE -->
       <div id="scoreBox" class="text-center fw-bold mt-3"></div>
 
     </section>
 
-    <!-- RESULTS PAGE -->
+    <!-- RESULTS  PAGE -->
     <section id="resultsPage" class="d-none text-center">
 
       <h2 class="fw-bold mb-3">🎉 Quiz Completed</h2>
@@ -182,25 +161,20 @@
       <div class="results-box p-4 rounded-4 mb-3">
 
         <div id="finalScore"></div>
-
         <div id="bestScore"></div>
-
         <div id="leaderboard"></div>
+
+        <!-- STATS -->
+        <div id="statsBox" class="mt-4"></div>
 
       </div>
 
-      <!-- REVIEW -->
       <div id="reviewAnswers" class="text-start mb-4"></div>
 
       <div class="d-flex justify-content-center gap-2">
 
-        <button id="restartBtn" class="btn btn-success">
-          🔁 Play Again
-        </button>
-
-        <button id="homeBtn" class="btn btn-light">
-          🏠 Back to Home
-        </button>
+        <button id="restartBtn" class="btn btn-success">🔁 Play Again</button>
+        <button id="homeBtn" class="btn btn-light">🏠 Back to Home</button>
 
       </div>
 
@@ -210,7 +184,6 @@
 
 </div>
 
-<!-- TOAST CONTAINER -->
 <div id="toast" class="toast-message"></div>
 
 <script src="assets/js/script.js"></script>
