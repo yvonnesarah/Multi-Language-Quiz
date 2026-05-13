@@ -1,58 +1,363 @@
+
+/* =========================
+   GLOBAL BASE (IMPROVED DARK MODE)
+========================= */
+
 body {
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  background: linear-gradient(135deg, #121826, #1b2a4a);
   min-height: 100vh;
   color: white;
+  transition: 0.3s ease;
 }
+
+/* =========================
+   LIGHT MODE BASE
+========================= */
+
+.light-mode {
+  background: linear-gradient(135deg, #f7f7f9, #e6e9ef);
+  color: #1a1a1a;
+}
+
+.light-mode h1,
+.light-mode h2,
+.light-mode h3,
+.light-mode h4,
+.light-mode h5,
+.light-mode p,
+.light-mode small,
+.light-mode label {
+  color: #1a1a1a !important;
+}
+
+/* =========================
+   GLASS CONTAINER (LESS BLUE, MORE NEUTRAL)
+========================= */
 
 .glass {
-  background: rgba(255,255,255,0.10);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
   border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+  transition: 0.3s ease;
 }
 
-.question-card {
-  background: rgba(255,255,255,0.12);
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 18px;
+.light-mode .glass {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
+
+/* =========================
+   BOXES
+========================= */
+
+.settings-box,
+.results-box,
+.question-card {
+  background: rgba(255,255,255,0.06);
+  transition: 0.3s ease;
+  border-radius: 15px;
+}
+
+.light-mode .settings-box,
+.light-mode .results-box,
+.light-mode .question-card {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+/* =========================
+   QUESTION CARD
+========================= */
+
+.question-card {
+  padding: 20px;
+  margin-bottom: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* difficulty */
+.easy { border-left: 5px solid #28a745; }
+.medium { border-left: 5px solid #ffc107; }
+.hard { border-left: 5px solid #dc3545; }
+
+/* =========================
+   OPTION BUTTONS (HIGH CONTRAST FIX)
+========================= */
 
 .option-btn {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 10px;
   text-align: left;
-  transition: 0.2s;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+/* DARK MODE OPTIONS (IMPORTANT FIX) */
+body:not(.light-mode) .option-btn {
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #111 !important;
+  font-weight: 500;
+}
+
+/* LIGHT MODE OPTIONS */
+.light-mode .option-btn {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid rgba(0,0,0,0.1);
 }
 
 .option-btn:hover {
   transform: scale(1.01);
 }
 
+/* =========================
+   ANSWER STATES (FIXED VISIBILITY)
+========================= */
+
 .correct {
-  background-color: #28a745 !important;
-  color: white !important;
+  background: #00e676 !important;
+  color: #0a0a0a !important;
+  font-weight: 800;
+  border: 2px solid #00ff88;
+  box-shadow: 0 0 18px rgba(0, 255, 136, 0.55);
+  transform: scale(1.02);
 }
 
 .wrong {
-  background-color: #dc3545 !important;
-  color: white !important;
+  background: #ff3b30 !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  border: 2px solid #ff6b6b;
+  box-shadow: 0 0 18px rgba(255, 59, 48, 0.55);
+  transform: scale(1.02);
 }
 
-#scoreBox {
-  font-size: 1.3rem;
+/* LIGHT MODE CLEAN VERSION */
+.light-mode .correct {
+  background: #28a745 !important;
+  color: white !important;
+  box-shadow: none;
+  transform: none;
 }
+
+.light-mode .wrong {
+  background: #dc3545 !important;
+  color: white !important;
+  box-shadow: none;
+  transform: none;
+}
+
+/* smooth transitions */
+.option-btn,
+.correct,
+.wrong {
+  transition: all 0.2s ease-in-out;
+}
+
+/* =========================
+   PROGRESS BAR
+========================= */
 
 .progress {
   height: 10px;
   background: rgba(255,255,255,0.2);
 }
 
+.light-mode .progress {
+  background: rgba(0,0,0,0.08);
+}
+
 .progress-bar {
   background: #ffc107;
 }
 
-#timerText {
-  font-weight: bold;
+/* =========================
+   TIMER BAR
+========================= */
+
+.timer-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.light-mode .timer-bar {
+  background: rgba(0,0,0,0.08);
+}
+
+#timerBarFill {
+  height: 100%;
+  width: 100%;
+  background: #ff4d4d;
+  transition: width 1s linear;
+}
+
+/* =========================
+   REVIEW CARDS
+========================= */
+
+.review-card {
+  background: rgba(255,255,255,0.06);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.light-mode .review-card {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+/* =========================
+   BUTTON FIXES
+========================= */
+
+.light-mode .btn-light {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.light-mode .btn-outline-light {
+  color: #1a1a1a;
+  border-color: rgba(0,0,0,0.2);
+}
+
+.light-mode .btn-outline-light:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+/* =========================
+   FORM CONTROLS
+========================= */
+
+.light-mode .form-control,
+.light-mode .form-select {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+.light-mode .form-select option {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+/* =========================
+   LAYOUT FIX
+========================= */
+
+.container {
+  max-width: 1100px;
+}
+
+.settings-box {
+  padding: 30px;
+}
+
+.form-label {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.form-select {
+  padding: 10px;
+  border-radius: 10px;
+}
+
+#startBtn {
+  padding: 14px;
+  border-radius: 12px;
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* =========================
+   TOAST NOTIFICATION
+========================= */
+
+.toast-message {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+
+.toast-show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+.toast-correct {
+  background: #00c853;
+  box-shadow: 0 0 15px rgba(0,255,136,0.4);
+}
+
+.toast-wrong {
+  background: #ff3b30;
+  box-shadow: 0 0 15px rgba(255,59,48,0.4);
+}
+
+/* =========================
+   FEEDBACK ANIMATIONS
+========================= */
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.pop {
+  animation: pop 0.3s ease;
+}
+
+.shake {
+  animation: shake 0.3s ease;
+}
+
+/* =========================
+   MOBILE FIXES
+========================= */
+
+@media(max-width:768px){
+  .glass {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  .option-btn {
+    font-size: 0.95rem;
+    padding: 12px;
+  }
 }
