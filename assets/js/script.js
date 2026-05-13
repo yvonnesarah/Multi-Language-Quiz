@@ -1,6 +1,5 @@
 let score = 0;
 let totalQuestions = 0;
-
 let currentIndex = 0;
 
 let questionsData = [];
@@ -9,12 +8,11 @@ let userAnswers = [];
 let timer;
 let timeLeft = 15;
 
+let playerName = "Guest";
+
 /* PAGE */
 function showPage(page) {
-
-  $("#homePage, #quizPage, #resultsPage")
-    .addClass("d-none");
-
+  $("#homePage, #quizPage, #resultsPage").addClass("d-none");
   $(`#${page}`).removeClass("d-none");
 }
 
@@ -22,13 +20,9 @@ function showPage(page) {
 $(document).ready(function () {
 
   $("#startBtn").click(loadQuiz);
-
   $("#nextBtn").click(nextQuestion);
-
   $("#prevBtn").click(prevQuestion);
-
   $("#restartBtn").click(loadQuiz);
-
   $("#homeBtn").click(goHome);
 
   /* THEME */
@@ -37,117 +31,52 @@ $(document).ready(function () {
   }
 
   $("#themeToggle").click(function () {
-
     $("body").toggleClass("light-mode");
-
     localStorage.setItem(
       "theme",
-      $("body").hasClass("light-mode")
-        ? "light"
-        : "dark"
+      $("body").hasClass("light-mode") ? "light" : "dark"
     );
   });
+
+  /* RESUME QUIZ */
+  const saved = JSON.parse(localStorage.getItem("quizProgress"));
+
+  if (saved) {
+    setTimeout(() => {
+      if (confirm("Resume previous quiz?")) {
+        currentIndex = saved.currentIndex;
+        score = saved.score;
+        userAnswers = saved.userAnswers;
+        questionsData = saved.questionsData;
+        totalQuestions = questionsData.length;
+
+        showPage("quizPage");
+        renderQuestion();
+      }
+    }, 500);
+  }
 });
 
 /* HOME */
 function goHome() {
-
   clearInterval(timer);
-
   showPage("homePage");
-}
-
-/* UTILS */
-function decodeHTML(html) {
-  return $("<textarea>").html(html).text();
-}
-
-function shuffle(arr) {
-  return arr.sort(() => Math.random() - 0.5);
-}
-
-/* TRANSLATE */
-async function translate(text, lang) {
-
-  if (lang === "en") return text;
-
-  try {
-
-    const res = await $.ajax({
-      url: "https://api.mymemory.translated.net/get",
-      data: {
-        q: text,
-        langpair: `en|${lang}`
-      }
-    });
-
-    return res.responseData.translatedText || text;
-
-  } catch {
-    return text;
-  }
-}
-
-/* TIMER */
-function startTimer() {
-
-  clearInterval(timer);
-
-  timeLeft = 15;
-
-  timer = setInterval(() => {
-
-    timeLeft--;
-
-    $("#timerText").text(`⏱️ ${timeLeft}s`);
-
-    $("#timerBarFill").css(
-      "width",
-      `${(timeLeft / 15) * 100}%`
-    );
-
-    if (timeLeft <= 0) {
-
-      clearInterval(timer);
-
-      nextQuestion();
-    }
-
-  }, 1000);
-}
-
-/* PROGRESS */
-function updateProgress() {
-
-  const percent =
-    ((currentIndex + 1) / totalQuestions) * 100;
-
-  $("#progressBar").css("width", percent + "%");
-
-  $("#progressText").text(
-    `Question ${currentIndex + 1} / ${totalQuestions}`
-  );
 }
 
 /* LOAD QUIZ */
 async function loadQuiz() {
 
   score = 0;
-
   currentIndex = 0;
-
   userAnswers = [];
 
-  $("#reviewAnswers").html("");
+  playerName = $("#playerName").val().trim() || "Guest";
 
   showPage("quizPage");
-
   $("#loader").removeClass("d-none");
 
   const category = $("#category").val();
-
   const difficulty = $("#difficulty").val();
-
   const amount = $("#questionCount").val();
 
   const data = await $.getJSON(
@@ -155,82 +84,28 @@ async function loadQuiz() {
   );
 
   questionsData = data.results;
-
   totalQuestions = questionsData.length;
 
   $("#loader").addClass("d-none");
 
+  saveProgress();
   renderQuestion();
 }
-/* =========================
-   VISUAL FEEDBACK SYSTEM
-========================= */
 
-function showToast(message, type) {
-
-  const toast = $("#toast");
-
-  toast
-    .removeClass("toast-show toast-correct toast-wrong")
-    .addClass(type === "correct" ? "toast-correct" : "toast-wrong")
-    .text(message);
-
-  setTimeout(() => toast.addClass("toast-show"), 10);
-
-  setTimeout(() => toast.removeClass("toast-show"), 1500);
-}
-
-function vibrate(type) {
-  if (!navigator.vibrate) return;
-
-  if (type === "correct") {
-    navigator.vibrate([80, 30, 80]);
-  } else {
-    navigator.vibrate([200]);
-  }
-}
-
-function animateButton(btn, type) {
-  btn.removeClass("pop shake");
-
-  setTimeout(() => {
-    btn.addClass(type === "correct" ? "pop" : "shake");
-  }, 10);
-}
-
-/* RENDER */
+/* QUESTION */
 async function renderQuestion() {
 
   const q = questionsData[currentIndex];
 
-  const lang = $("#language").val();
-
-  const question =
-    await translate(
-      decodeHTML(q.question),
-      lang
-    );
-
-  const correct =
-    await translate(
-      decodeHTML(q.correct_answer),
-      lang
-    );
-
-  const incorrect =
-    await Promise.all(
-      q.incorrect_answers.map(a =>
-        translate(decodeHTML(a), lang)
-      )
-    );
-
-  const options =
-    shuffle([correct, ...incorrect]);
+  const options = shuffle([
+    q.correct_answer,
+    ...q.incorrect_answers
+  ]);
 
   const card = $(`
     <div class="question-card ${q.difficulty}">
-      <h5>${question}</h5>
-      <div class="options mt-3"></div>
+      <h5>${q.question}</h5>
+      <div class="options"></div>
     </div>
   `);
 
@@ -242,222 +117,148 @@ async function renderQuestion() {
       </button>
     `);
 
-btn.click(function () {
+    btn.click(function () {
 
-  if (userAnswers[currentIndex]) return;
+      if (userAnswers[currentIndex]) return;
 
-  const isCorrect = option === correct;
+      const isCorrect = option === q.correct_answer;
 
-  userAnswers[currentIndex] = {
-    question,
-    selected: option,
-    correct
-  };
+      userAnswers[currentIndex] = {
+        question: q.question,
+        selected: option,
+        correct: q.correct_answer
+      };
 
-  if (isCorrect) {
-    score++;
-    showToast("✅ Correct!", "correct");
-    vibrate("correct");
+      if (isCorrect) {
+        score++;
+        showToast("✅ Correct!", "correct");
+        vibrate("correct");
+        confetti({ particleCount: 120, spread: 80 });
+      } else {
+        showToast("❌ Wrong!", "wrong");
+        vibrate("wrong");
+      }
 
-    confetti({
-      particleCount: 120,
-      spread: 80
+      lockAnswer(card, q.correct_answer);
+      updateScore();
+      saveProgress();
     });
-
-  } else {
-    showToast("❌ Wrong!", "wrong");
-    vibrate("wrong");
-  }
-
-  animateButton(btn, isCorrect ? "correct" : "wrong");
-
-  lockAnswer(card, correct);
-
-  updateScore();
-  saveProgress();
-});
 
     card.find(".options").append(btn);
   });
 
   $("#quizBox").html(card);
-
   updateProgress();
-
   updateScore();
-
   startTimer();
 }
 
-/* LOCK ANSWERS */
-function lockAnswer(card, correct) {
+/* TIMER */
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 15;
 
-  setTimeout(() => {
+  timer = setInterval(() => {
 
-    card.find("button").each(function () {
+    timeLeft--;
 
-      $(this).prop("disabled", true);
+    $("#timerText").text(`⏱️ ${timeLeft}s`);
 
-      if ($(this).text() === correct) {
-        $(this).addClass("correct pop");
-      }
+    $("#timerBarFill").css("width", `${(timeLeft / 15) * 100}%`);
 
-      const selected = userAnswers[currentIndex]?.selected;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      nextQuestion();
+    }
 
-      if (selected === $(this).text() && selected !== correct) {
-        $(this).addClass("wrong shake");
-      }
-    });
-
-  }, 200);
+  }, 1000);
 }
 
-/* NAVIGATION */
+/* NAV */
 function nextQuestion() {
-
   if (currentIndex < totalQuestions - 1) {
-
     currentIndex++;
-
     renderQuestion();
-
   } else {
-
     showResults();
   }
 }
 
 function prevQuestion() {
-
   if (currentIndex > 0) {
-
     currentIndex--;
-
     renderQuestion();
   }
-}
-
-/* SCORE */
-function updateScore() {
-
-  $("#scoreBox").html(
-    `Score: ${score} / ${totalQuestions}`
-  );
-}
-
-/* SAVE */
-function saveProgress() {
-
-  localStorage.setItem(
-    "quizProgress",
-    JSON.stringify({
-      currentIndex,
-      score,
-      userAnswers
-    })
-  );
 }
 
 /* RESULTS */
 function showResults() {
 
   clearInterval(timer);
+  localStorage.removeItem("quizProgress");
 
   showPage("resultsPage");
 
-  const accuracy =
-    Math.round((score / totalQuestions) * 100);
-
-  let badge = "";
-
-  if (score === totalQuestions) {
-
-    badge = "🏆 Quiz Master";
-
-    confetti({
-      particleCount: 150,
-      spread: 90
-    });
-
-  } else if (accuracy >= 70) {
-
-    badge = "🔥 Smart Player";
-
-  } else {
-
-    badge = "🎯 Keep Practicing";
-  }
-
-  /* BEST SCORE */
-  let best =
-    localStorage.getItem("bestScore") || 0;
-
-  if (score > best) {
-
-    localStorage.setItem("bestScore", score);
-
-    best = score;
-  }
-
-  /* LEADERBOARD */
-  let leaderboard =
-    JSON.parse(
-      localStorage.getItem("leaderboard")
-    ) || [];
-
-  leaderboard.push(score);
-
-  leaderboard.sort((a, b) => b - a);
-
-  leaderboard = leaderboard.slice(0, 5);
-
-  localStorage.setItem(
-    "leaderboard",
-    JSON.stringify(leaderboard)
-  );
+  const accuracy = Math.round((score / totalQuestions) * 100);
 
   $("#finalScore").html(`
-    <h3>${score} / ${totalQuestions}</h3>
+    <h4>${playerName}</h4>
+    <h2>${score} / ${totalQuestions}</h2>
     <p>Accuracy: ${accuracy}%</p>
-    <h4>${badge}</h4>
   `);
 
-  $("#bestScore").html(`
-    🏆 Best Score: ${best}
+  const correct = score;
+  const wrong = totalQuestions - score;
+
+  $("#statsBox").html(`
+    <div class="row text-center">
+      <div class="col"><h3>${correct}</h3><p>Correct</p></div>
+      <div class="col"><h3>${wrong}</h3><p>Wrong</p></div>
+      <div class="col"><h3>${accuracy}%</h3><p>Accuracy</p></div>
+    </div>
   `);
+}
 
-  $("#leaderboard").html(`
-    <h5 class="mt-3">Top Scores</h5>
-    ${leaderboard.map(s => `<div>${s}</div>`).join("")}
-  `);
+/* UTIL */
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
 
-  /* REVIEW ANSWERS */
-  userAnswers.forEach((a, i) => {
+function updateProgress() {
+  const percent = ((currentIndex + 1) / totalQuestions) * 100;
+  $("#progressBar").css("width", percent + "%");
+  $("#progressText").text(`Question ${currentIndex + 1} / ${totalQuestions}`);
+}
 
-    $("#reviewAnswers").append(`
-      <div class="review-card">
+function updateScore() {
+  $("#scoreBox").text(`Score: ${score}/${totalQuestions}`);
+}
 
-        <h6>Q${i + 1}. ${a.question}</h6>
+function saveProgress() {
+  localStorage.setItem("quizProgress", JSON.stringify({
+    currentIndex,
+    score,
+    userAnswers,
+    questionsData
+  }));
+}
 
-        <div>
-          Your Answer:
-          <span class="${
-            a.selected === a.correct
-              ? 'text-success'
-              : 'text-danger'
-          }">
-            ${a.selected}
-          </span>
-        </div>
+function showToast(msg, type) {
+  $("#toast")
+    .removeClass()
+    .addClass(`toast-message toast-${type} toast-show`)
+    .text(msg);
 
-        <div>
-          Correct Answer:
-          <span class="text-success">
-            ${a.correct}
-          </span>
-        </div>
+  setTimeout(() => $("#toast").removeClass("toast-show"), 1500);
+}
 
-      </div>
-    `);
-  });
+function vibrate(type) {
+  if (!navigator.vibrate) return;
+  navigator.vibrate(type === "correct" ? [80, 30, 80] : [200]);
+}
+
+function lockAnswer(card, correct) {
+  setTimeout(() => {
+    card.find("button").prop("disabled", true);
+  }, 200);
 }
