@@ -17,9 +17,14 @@ function showPage(page) {
   $(`#${page}`).removeClass("d-none");
 }
 
-/* CHECK ANSWERED */
+/* CHECK ANSWER */
 function isAnswered(index) {
   return userAnswers[index] !== undefined;
+}
+
+/* HTML DECODER (IMPORTANT FIX) */
+function decodeHTML(str) {
+  return $("<div>").html(str).text().trim();
 }
 
 /* INIT */
@@ -30,7 +35,6 @@ $(document).ready(function () {
   $("#prevBtn").click(prevQuestion);
   $("#restartBtn").click(loadQuiz);
   $("#homeBtn").click(goHome);
-
   $("#pauseBtn").click(togglePause);
 
   /* THEME */
@@ -46,23 +50,26 @@ $(document).ready(function () {
     );
   });
 
-  /* RESUME */
-  const saved = JSON.parse(localStorage.getItem("quizProgress"));
+  /* 50/50 LIFELINE */
+  $("#fiftyBtn").click(function () {
 
-  if (saved) {
-    setTimeout(() => {
-      if (confirm("Resume previous quiz?")) {
-        currentIndex = saved.currentIndex;
-        score = saved.score;
-        userAnswers = saved.userAnswers;
-        questionsData = saved.questionsData;
-        totalQuestions = questionsData.length;
+    const q = questionsData[currentIndex];
 
-        showPage("quizPage");
-        renderQuestion();
-      }
-    }, 500);
-  }
+    const buttons = $(".option-btn").toArray();
+
+    const correct = decodeHTML(q.correct_answer);
+
+    const wrongButtons = buttons.filter(btn => {
+      return decodeHTML($(btn).html()) !== correct;
+    });
+
+    shuffle(wrongButtons)
+      .slice(0, 2)
+      .forEach(btn => $(btn).fadeOut(200));
+
+    $(this).prop("disabled", true);
+  });
+
 });
 
 /* HOME */
@@ -96,11 +103,10 @@ async function loadQuiz() {
 
   $("#loader").addClass("d-none");
 
-  saveProgress();
   renderQuestion();
 }
 
-/* QUESTION */
+/* QUESTION RENDER */
 function renderQuestion() {
 
   const q = questionsData[currentIndex];
@@ -129,7 +135,8 @@ function renderQuestion() {
 
       if (userAnswers[currentIndex]) return;
 
-      const isCorrect = option === q.correct_answer;
+      const isCorrect =
+        decodeHTML(option) === decodeHTML(q.correct_answer);
 
       userAnswers[currentIndex] = {
         question: q.question,
@@ -140,14 +147,13 @@ function renderQuestion() {
       if (isCorrect) {
         score++;
         showToast("✅ Correct!", "correct");
-        confetti({ particleCount: 120, spread: 80 });
+        confetti({ particleCount: 100, spread: 70 });
       } else {
         showToast("❌ Wrong!", "wrong");
       }
 
       lockAnswer(card);
       updateScore();
-      saveProgress();
     });
 
     card.find(".options").append(btn);
@@ -177,7 +183,6 @@ function startTimer() {
     if (timeLeft <= 0) {
       clearInterval(timer);
 
-      // AUTO MARK IF NOT ANSWERED
       if (!isAnswered(currentIndex)) {
         userAnswers[currentIndex] = {
           question: questionsData[currentIndex].question,
@@ -211,7 +216,7 @@ function togglePause() {
 function nextQuestion() {
 
   if (!isAnswered(currentIndex)) {
-    showToast("⚠ Please answer before continuing!", "wrong");
+    showToast("⚠ Please answer first!", "wrong");
     return;
   }
 
@@ -234,7 +239,6 @@ function prevQuestion() {
 function showResults() {
 
   clearInterval(timer);
-  localStorage.removeItem("quizProgress");
 
   showPage("resultsPage");
 
@@ -293,56 +297,19 @@ function renderLeaderboard() {
   const medals = ["🥇", "🥈", "🥉"];
 
   $("#leaderboard").html(`
-    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-      <h5 class="mb-0">🏆 Leaderboard</h5>
-      <button id="clearLeaderboard" class="btn btn-sm btn-danger">🗑 Clear</button>
-    </div>
-
+    <h5>🏆 Leaderboard</h5>
     <div class="list-group">
-
       ${board.map((b, i) => `
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-
-          <div class="text-start">
-            <div class="fw-bold">
-              ${medals[i] || `#${i + 1}`} ${b.name}
-            </div>
-            <small class="text-muted">${b.date}</small>
-          </div>
-
-          <div class="text-center">
-            <div class="fw-bold">${b.score}/${b.total}</div>
-            <small>${b.percent}%</small>
-          </div>
-
-          <button class="btn btn-sm btn-outline-danger remove-entry" data-index="${i}">
-            ✖
-          </button>
-
+        <div class="list-group-item d-flex justify-content-between">
+          <div>${medals[i] || i + 1} ${b.name}</div>
+          <div>${b.score}/${b.total}</div>
         </div>
       `).join("")}
-
     </div>
   `);
-
-  /* REMOVE ONE */
-  $(".remove-entry").click(function () {
-    let board = JSON.parse(localStorage.getItem("leaderboard")) || [];
-    board.splice($(this).data("index"), 1);
-    localStorage.setItem("leaderboard", JSON.stringify(board));
-    renderLeaderboard();
-  });
-
-  /* CLEAR ALL */
-  $("#clearLeaderboard").click(function () {
-    if (confirm("Clear leaderboard?")) {
-      localStorage.removeItem("leaderboard");
-      $("#leaderboard").html("<p class='text-muted'>No scores yet</p>");
-    }
-  });
 }
 
-/* UTIL */
+/* UTILS */
 function shuffle(arr) {
   return arr.sort(() => Math.random() - 0.5);
 }
@@ -350,20 +317,11 @@ function shuffle(arr) {
 function updateProgress() {
   const percent = ((currentIndex + 1) / totalQuestions) * 100;
   $("#progressBar").css("width", percent + "%");
-  $("#progressText").text(`Question ${currentIndex + 1} / ${totalQuestions}`);
+  $("#progressText").text(`Q ${currentIndex + 1} / ${totalQuestions}`);
 }
 
 function updateScore() {
   $("#scoreBox").text(`Score: ${score}/${totalQuestions}`);
-}
-
-function saveProgress() {
-  localStorage.setItem("quizProgress", JSON.stringify({
-    currentIndex,
-    score,
-    userAnswers,
-    questionsData
-  }));
 }
 
 function showToast(msg, type) {
@@ -378,5 +336,5 @@ function showToast(msg, type) {
 function lockAnswer(card) {
   setTimeout(() => {
     card.find("button").prop("disabled", true);
-  }, 200);
+  }, 150);
 }
