@@ -43,3 +43,16 @@ body {
 #scoreBox {
   font-size: 1.3rem;
 }
+
+.progress {
+  height: 10px;
+  background: rgba(255,255,255,0.2);
+}
+
+.progress-bar {
+  background: #ffc107;
+}
+
+#timerText {
+  font-weight: bold;
+}
