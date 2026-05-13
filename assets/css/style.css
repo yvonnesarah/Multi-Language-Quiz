@@ -1,6 +1,6 @@
 
 /* =========================
-   GLOBAL BASE (IMPROVED DARK MODE)
+   GLOBAL BASE (DARK MODE)
 ========================= */
 
 body {
@@ -83,7 +83,7 @@ body {
 .hard { border-left: 5px solid #dc3545; }
 
 /* =========================
-   OPTION BUTTONS (HIGH CONTRAST FIX)
+   OPTION BUTTONS (HIGH CONTRAST)
 ========================= */
 
 .option-btn {
@@ -94,7 +94,7 @@ body {
   border: none;
 }
 
-/* DARK MODE OPTIONS (IMPORTANT FIX) */
+/* DARK MODE OPTIONS */
 body:not(.light-mode) .option-btn {
   background: rgba(255, 255, 255, 0.94) !important;
   color: #111 !important;
@@ -113,7 +113,7 @@ body:not(.light-mode) .option-btn {
 }
 
 /* =========================
-   ANSWER STATES (FIXED VISIBILITY)
+   ANSWER STATES (VISIBILITY)
 ========================= */
 
 .correct {
@@ -134,7 +134,7 @@ body:not(.light-mode) .option-btn {
   transform: scale(1.02);
 }
 
-/* LIGHT MODE CLEAN VERSION */
+/* LIGHT MODE */
 .light-mode .correct {
   background: #28a745 !important;
   color: white !important;
@@ -212,7 +212,7 @@ body:not(.light-mode) .option-btn {
 }
 
 /* =========================
-   BUTTON FIXES
+   BUTTON 
 ========================= */
 
 .light-mode .btn-light {
@@ -247,7 +247,7 @@ body:not(.light-mode) .option-btn {
 }
 
 /* =========================
-   LAYOUT FIX
+   LAYOUT 
 ========================= */
 
 .container {
@@ -344,7 +344,7 @@ body:not(.light-mode) .option-btn {
 }
 
 /* =========================
-   MOBILE FIXES
+   MOBILE 
 ========================= */
 
 @media(max-width:768px){
@@ -359,5 +359,62 @@ body:not(.light-mode) .option-btn {
   .option-btn {
     font-size: 0.95rem;
     padding: 12px;
+  }
+}
+
+/* =========================
+   PAGE TRANSITIONS
+========================= */
+
+#homePage,
+#quizPage,
+#resultsPage {
+  animation: fadePage 0.35s ease;
+}
+
+@keyframes fadePage {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.question-card {
+  animation: slideFade 0.3s ease;
+}
+
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* =========================
+   QUESTION TRANSITION
+========================= */
+
+.question-card {
+  animation: slideFade 0.35s ease;
+}
+
+@keyframes slideFade {
+
+  from {
+    opacity: 0;
+    transform: translateX(25px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
