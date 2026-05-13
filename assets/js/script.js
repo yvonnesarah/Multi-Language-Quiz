@@ -9,11 +9,17 @@ let timer;
 let timeLeft = 15;
 
 let playerName = "Guest";
+let isPaused = false;
 
-/* PAGE */
+/* PAGE SWITCH */
 function showPage(page) {
   $("#homePage, #quizPage, #resultsPage").addClass("d-none");
   $(`#${page}`).removeClass("d-none");
+}
+
+/* CHECK ANSWERED */
+function isAnswered(index) {
+  return userAnswers[index] !== undefined;
 }
 
 /* INIT */
@@ -24,6 +30,8 @@ $(document).ready(function () {
   $("#prevBtn").click(prevQuestion);
   $("#restartBtn").click(loadQuiz);
   $("#homeBtn").click(goHome);
+
+  $("#pauseBtn").click(togglePause);
 
   /* THEME */
   if (localStorage.getItem("theme") === "light") {
@@ -38,7 +46,7 @@ $(document).ready(function () {
     );
   });
 
-  /* RESUME QUIZ */
+  /* RESUME */
   const saved = JSON.parse(localStorage.getItem("quizProgress"));
 
   if (saved) {
@@ -93,7 +101,7 @@ async function loadQuiz() {
 }
 
 /* QUESTION */
-async function renderQuestion() {
+function renderQuestion() {
 
   const q = questionsData[currentIndex];
 
@@ -132,14 +140,12 @@ async function renderQuestion() {
       if (isCorrect) {
         score++;
         showToast("✅ Correct!", "correct");
-        vibrate("correct");
         confetti({ particleCount: 120, spread: 80 });
       } else {
         showToast("❌ Wrong!", "wrong");
-        vibrate("wrong");
       }
 
-      lockAnswer(card, q.correct_answer);
+      lockAnswer(card);
       updateScore();
       saveProgress();
     });
@@ -148,6 +154,7 @@ async function renderQuestion() {
   });
 
   $("#quizBox").html(card);
+
   updateProgress();
   updateScore();
   startTimer();
@@ -160,22 +167,54 @@ function startTimer() {
 
   timer = setInterval(() => {
 
+    if (isPaused) return;
+
     timeLeft--;
 
     $("#timerText").text(`⏱️ ${timeLeft}s`);
-
     $("#timerBarFill").css("width", `${(timeLeft / 15) * 100}%`);
 
     if (timeLeft <= 0) {
       clearInterval(timer);
+
+      // AUTO MARK IF NOT ANSWERED
+      if (!isAnswered(currentIndex)) {
+        userAnswers[currentIndex] = {
+          question: questionsData[currentIndex].question,
+          selected: "No Answer",
+          correct: questionsData[currentIndex].correct_answer
+        };
+
+        showToast("⏰ Time's up!", "wrong");
+      }
+
       nextQuestion();
     }
 
   }, 1000);
 }
 
-/* NAV */
+/* PAUSE */
+function togglePause() {
+  isPaused = !isPaused;
+
+  if (isPaused) {
+    clearInterval(timer);
+    $("#pauseBtn").text("▶ Resume");
+  } else {
+    $("#pauseBtn").text("⏸ Pause");
+    startTimer();
+  }
+}
+
+/* NAVIGATION */
 function nextQuestion() {
+
+  if (!isAnswered(currentIndex)) {
+    showToast("⚠ Please answer before continuing!", "wrong");
+    return;
+  }
+
   if (currentIndex < totalQuestions - 1) {
     currentIndex++;
     renderQuestion();
@@ -207,16 +246,100 @@ function showResults() {
     <p>Accuracy: ${accuracy}%</p>
   `);
 
-  const correct = score;
-  const wrong = totalQuestions - score;
-
   $("#statsBox").html(`
     <div class="row text-center">
-      <div class="col"><h3>${correct}</h3><p>Correct</p></div>
-      <div class="col"><h3>${wrong}</h3><p>Wrong</p></div>
+      <div class="col"><h3>${score}</h3><p>Correct</p></div>
+      <div class="col"><h3>${totalQuestions - score}</h3><p>Wrong</p></div>
       <div class="col"><h3>${accuracy}%</h3><p>Accuracy</p></div>
     </div>
   `);
+
+  renderReview();
+  renderLeaderboard();
+}
+
+/* REVIEW */
+function renderReview() {
+  $("#reviewAnswers").html(
+    userAnswers.map((a, i) => `
+      <div class="review-card">
+        <strong>Q${i + 1}:</strong> ${a.question}
+        <br>
+        <span class="text-success">✔ ${a.correct}</span><br>
+        <span class="text-danger">✖ ${a.selected}</span>
+      </div>
+    `).join("")
+  );
+}
+
+/* LEADERBOARD */
+function renderLeaderboard() {
+
+  let board = JSON.parse(localStorage.getItem("leaderboard")) || [];
+
+  board.push({
+    name: playerName,
+    score,
+    total: totalQuestions,
+    percent: Math.round((score / totalQuestions) * 100),
+    date: new Date().toLocaleString()
+  });
+
+  board.sort((a, b) => b.score - a.score);
+  board = board.slice(0, 10);
+
+  localStorage.setItem("leaderboard", JSON.stringify(board));
+
+  const medals = ["🥇", "🥈", "🥉"];
+
+  $("#leaderboard").html(`
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+      <h5 class="mb-0">🏆 Leaderboard</h5>
+      <button id="clearLeaderboard" class="btn btn-sm btn-danger">🗑 Clear</button>
+    </div>
+
+    <div class="list-group">
+
+      ${board.map((b, i) => `
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+
+          <div class="text-start">
+            <div class="fw-bold">
+              ${medals[i] || `#${i + 1}`} ${b.name}
+            </div>
+            <small class="text-muted">${b.date}</small>
+          </div>
+
+          <div class="text-center">
+            <div class="fw-bold">${b.score}/${b.total}</div>
+            <small>${b.percent}%</small>
+          </div>
+
+          <button class="btn btn-sm btn-outline-danger remove-entry" data-index="${i}">
+            ✖
+          </button>
+
+        </div>
+      `).join("")}
+
+    </div>
+  `);
+
+  /* REMOVE ONE */
+  $(".remove-entry").click(function () {
+    let board = JSON.parse(localStorage.getItem("leaderboard")) || [];
+    board.splice($(this).data("index"), 1);
+    localStorage.setItem("leaderboard", JSON.stringify(board));
+    renderLeaderboard();
+  });
+
+  /* CLEAR ALL */
+  $("#clearLeaderboard").click(function () {
+    if (confirm("Clear leaderboard?")) {
+      localStorage.removeItem("leaderboard");
+      $("#leaderboard").html("<p class='text-muted'>No scores yet</p>");
+    }
+  });
 }
 
 /* UTIL */
@@ -252,12 +375,7 @@ function showToast(msg, type) {
   setTimeout(() => $("#toast").removeClass("toast-show"), 1500);
 }
 
-function vibrate(type) {
-  if (!navigator.vibrate) return;
-  navigator.vibrate(type === "correct" ? [80, 30, 80] : [200]);
-}
-
-function lockAnswer(card, correct) {
+function lockAnswer(card) {
   setTimeout(() => {
     card.find("button").prop("disabled", true);
   }, 200);
