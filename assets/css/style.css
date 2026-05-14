@@ -436,3 +436,13 @@ body:not(.light-mode) .option-btn {
     transform: translateX(0);
   }
 }
+
+.empty-board {
+  background: rgba(255,255,255,0.06);
+  border-radius: 14px;
+}
+
+.light-mode .empty-board {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+}
