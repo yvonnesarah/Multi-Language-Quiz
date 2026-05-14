@@ -24,10 +24,11 @@ let fiftyUsed = false;     // 50/50 lifeline flag (unused fully yet)
 ========================= */
 
 function showPage(page) {
-  $("#homePage, #quizPage, #resultsPage").addClass("d-none");
+  $("#homePage, #quizPage, #resultsPage, #leaderboardPage")
+    .addClass("d-none");
+
   $(`#${page}`).removeClass("d-none");
 }
-
 
 /* =========================
        UTIL: DECODE TEXT
@@ -66,6 +67,24 @@ function shuffle(arr) {
 
 $(document).ready(function () {
 
+  // =========================
+// LEADERBOARD NAVIGATION 
+// =========================
+
+$("#viewLeaderboardBtn").click(function () {
+  renderLeaderboardOnly();
+  showPage("leaderboardPage");
+});
+
+$("#leaderboardBtn").click(function () {
+  renderLeaderboardOnly();
+  showPage("leaderboardPage");
+});
+
+$("#leaderboardHomeBtn").click(function () {
+  showPage("homePage");
+});
+
   // Start quiz
   $("#startBtn").click(loadQuiz);
 
@@ -92,31 +111,28 @@ $(document).ready(function () {
     );
   });
 
+
   /* =========================
      50/50 LIFELINE FEATURE
      Removes 2 wrong answers
   ========================= */
 
   $("#fiftyBtn").click(function () {
-    const q = questionsData[currentIndex];
 
-    const buttons = $(".option-btn").toArray();
+  const correct = $(".correct-answer-holder").data("correct");
 
-    // Correct answer stored in hidden div
-    const correct = $(".correct-answer-holder").data("correct");
+  const buttons = $(".option-btn").toArray();
 
-    // Filter wrong answers
-    const wrongButtons = buttons.filter(btn =>
-      $(btn).text().trim() !== correct
-    );
+  const wrongButtons = buttons.filter(btn =>
+    $(btn).data("answer") !== correct
+  );
 
-    // Hide two random wrong options
-    shuffle(wrongButtons)
-      .slice(0, 2)
-      .forEach(btn => $(btn).fadeOut(200));
+  shuffle(wrongButtons)
+    .slice(0, 2)
+    .forEach(btn => $(btn).fadeOut(200));
 
-    $(this).prop("disabled", true);
-  });
+  $(this).prop("disabled", true);
+});
 
 });
 
@@ -269,9 +285,14 @@ function startTimer() {
 
   timer = setInterval(() => {
 
-    if (isPaused) return;
+  if (isPaused) return;
 
-    timeLeft--;
+  if ($("#quizPage").hasClass("d-none")) {
+    clearInterval(timer);
+    return;
+  }
+
+  timeLeft--;
 
     $("#timerText").text(`⏱️ ${timeLeft}s`);
     $("#timerBarFill").css("width", `${(timeLeft / 15) * 100}%`);
@@ -323,7 +344,7 @@ function togglePause() {
 function nextQuestion() {
 
   // Must answer before moving on
-  if (!userAnswers[currentIndex]) {
+  if (!userAnswers[currentIndex] || userAnswers[currentIndex].selected === undefined) {
     showToast("⚠ Please answer first!", "wrong");
     return;
   }
@@ -403,14 +424,18 @@ function renderLeaderboard() {
 
   let board = JSON.parse(localStorage.getItem("leaderboard")) || [];
 
+  const resultId = Date.now();
+
   // Add current result
-  board.push({
-    name: playerName,
-    score,
-    total: totalQuestions,
-    percent: Math.round((score / totalQuestions) * 100),
-    date: new Date().toLocaleString()
-  });
+ 
+board.push({
+  id: resultId,
+  name: playerName,
+  score,
+  total: totalQuestions,
+  percent: Math.round((score / totalQuestions) * 100),
+  date: new Date().toLocaleString()
+});
 
   // Sort by score
   board.sort((a, b) => b.score - a.score);
@@ -424,15 +449,121 @@ function renderLeaderboard() {
 
   $("#leaderboard").html(`
     <h5>🏆 Leaderboard</h5>
+
     <div class="list-group">
       ${board.map((b, i) => `
-        <div class="list-group-item d-flex justify-content-between">
-          <div>${medals[i] || i + 1} ${b.name}</div>
-          <div>${b.score}/${b.total}</div>
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+
+          <div>
+            ${medals[i] || i + 1} ${b.name}
+            <br>
+            <small>${b.score}/${b.total}</small>
+          </div>
+
+          <button 
+            class="btn btn-sm btn-danger remove-score"
+            data-index="${i}"
+          >
+            ❌ Remove
+          </button>
+
         </div>
       `).join("")}
     </div>
   `);
+
+  /* =========================
+       REMOVE SCORE BUTTON
+  ========================= */
+
+  $(".remove-score").click(function () {
+
+    const index = $(this).data("index");
+
+    let updatedBoard =
+      JSON.parse(localStorage.getItem("leaderboard")) || [];
+
+    // Remove selected item
+    updatedBoard.splice(index, 1);
+
+    // Save updated board
+    localStorage.setItem(
+      "leaderboard",
+      JSON.stringify(updatedBoard)
+    );
+
+    // Re-render leaderboard
+    $("#leaderboard").html("");
+    renderLeaderboardOnly();
+  });
+}
+
+
+/* =========================
+    RENDER ONLY EXISTING
+      LEADERBOARD DATA
+========================= */
+
+function renderLeaderboardOnly() {
+
+  let board =
+    JSON.parse(localStorage.getItem("leaderboard")) || [];
+
+  // EMPTY LEADERBOARD MESSAGE
+ if (!board || board.length === 0) {
+  $("#leaderboard").html(`
+    <h5>🏆 Leaderboard</h5>
+    <div class="empty-board text-center p-4">
+      <h6>No scores yet</h6>
+    </div>
+  `);
+  return;
+}
+
+  const medals = ["🥇", "🥈", "🥉"];
+
+  $("#leaderboard").html(`
+    <h5>🏆 Leaderboard</h5>
+
+    <div class="list-group">
+      ${board.map((b, i) => `
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+
+          <div>
+            ${medals[i] || i + 1} ${b.name}
+            <br>
+            <small>${b.score}/${b.total}</small>
+          </div>
+
+          <button 
+            class="btn btn-sm btn-danger remove-score"
+            data-index="${i}"
+          >
+            ❌ Remove
+          </button>
+
+        </div>
+      `).join("")}
+    </div>
+  `);
+
+  // Re-bind remove buttons
+  $(".remove-score").click(function () {
+
+    const index = $(this).data("index");
+
+    let updatedBoard =
+      JSON.parse(localStorage.getItem("leaderboard")) || [];
+
+    updatedBoard.splice(index, 1);
+
+    localStorage.setItem(
+      "leaderboard",
+      JSON.stringify(updatedBoard)
+    );
+
+    renderLeaderboardOnly();
+  });
 }
 
 
