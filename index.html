@@ -7,16 +7,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Multi-Language Quiz</title>
 
-  <!-- Bootstrap CSS for layout and styling -->
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Custom stylesheet -->
   <link rel="stylesheet" href="assets/css/style.css">
 
-  <!-- jQuery library -->
+  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-  <!-- Confetti animation library -->
+  <!-- Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
 
@@ -29,18 +29,19 @@
     <!-- ================= HEADER SECTION ================= -->
     <header class="text-center mb-4">
 
-      <!-- Theme toggle button row -->
+      <!-- Theme Toggle -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div></div>
         <button id="themeToggle" class="btn btn-light btn-sm">🌙 Theme</button>
       </div>
 
-      <!-- App title -->
+      <!-- App Title -->
       <h1 class="fw-bold">🌍 Multi-Language Quiz</h1>
       <p class="text-light opacity-75">Test your knowledge across categories</p>
+
     </header>
 
-    <!-- ================= HOME PAGE (SETUP SCREEN) ================= -->
+    <!-- ================= HOME PAGE ================= -->
     <section id="homePage">
 
       <div class="text-center mb-4">
@@ -48,16 +49,16 @@
         <p class="opacity-75">Set up your quiz and start playing</p>
       </div>
 
-      <!-- Settings form box -->
+      <!-- Settings Box -->
       <div class="settings-box p-4 rounded-4">
 
-        <!-- Player name input -->
+        <!-- Player Name -->
         <div class="mb-3">
           <label class="form-label">Player Name</label>
           <input type="text" id="playerName" class="form-control" placeholder="Enter your name">
         </div>
 
-        <!-- Category selection -->
+        <!-- Category -->
         <div class="mb-3">
           <label class="form-label">Category</label>
           <select id="category" class="form-select">
@@ -73,21 +74,21 @@
           </select>
         </div>
 
-        <!-- Language selection  -->
-<div class="mb-3">
-  <label for="language" class="form-label">Language</label>
+        <!-- Language -->
+        <div class="mb-3">
+          <label for="language" class="form-label">Language</label>
 
-  <select id="language" class="form-select">
-    <option value="en">English</option>
-    <option value="es">Spanish</option>
-    <option value="fr">French</option>
-    <option value="de">German</option>
-    <option value="it">Italian</option>
-    <option value="pt">Portuguese</option>
-  </select>
-</div>
+          <select id="language" class="form-select">
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <option value="pt">Portuguese</option>
+          </select>
+        </div>
 
-        <!-- Difficulty selection -->
+        <!-- Difficulty -->
         <div class="mb-3">
           <label class="form-label">Difficulty</label>
           <select id="difficulty" class="form-select">
@@ -97,7 +98,7 @@
           </select>
         </div>
 
-        <!-- Number of questions selection -->
+        <!-- Questions -->
         <div class="mb-4">
           <label class="form-label">Questions</label>
           <select id="questionCount" class="form-select">
@@ -107,10 +108,17 @@
           </select>
         </div>
 
-        <!-- Start quiz button -->
+        <!-- Start Button -->
         <div class="d-grid">
           <button id="startBtn" class="btn btn-warning btn-lg fw-bold">
             🚀 Start Quiz
+          </button>
+        </div>
+
+        <!-- View Leaderboard -->
+        <div class="d-grid mt-3">
+          <button id="viewLeaderboardBtn" class="btn btn-outline-light">
+            🏆 View Leaderboard
           </button>
         </div>
 
@@ -120,49 +128,53 @@
     <!-- ================= QUIZ PAGE ================= -->
     <section id="quizPage" class="d-none">
 
-      <!-- Progress + timer display -->
+      <!-- Progress + Timer -->
       <div class="mb-3 d-flex justify-content-between">
         <small id="progressText"></small>
         <small id="timerText">⏱️ 15s</small>
       </div>
 
-      <!-- Progress bar -->
+      <!-- Progress Bar -->
       <div class="progress mb-2">
         <div id="progressBar" class="progress-bar"></div>
       </div>
 
-      <!-- Timer visual bar -->
+      <!-- Timer Bar -->
       <div class="timer-bar mb-3">
         <div id="timerBarFill"></div>
       </div>
 
-      <!-- Navigation + lifeline controls -->
+      <!-- Controls -->
       <div class="d-flex justify-content-between mb-3">
-        <button id="prevBtn" class="btn btn-outline-light btn-sm">⬅ Previous</button>
 
-      <!-- PAUSE BUTTON  -->
-      <button id="pauseBtn" class="btn btn-warning">
-        ⏸ Pause
-      </button>
+        <button id="prevBtn" class="btn btn-outline-light btn-sm">
+          ⬅ Previous
+        </button>
 
-        <!-- 50/50 lifeline button -->
+        <button id="pauseBtn" class="btn btn-warning">
+          ⏸ Pause
+        </button>
+
         <button id="fiftyBtn" class="btn btn-outline-warning btn-sm">
           50/50
         </button>
 
-        <button id="nextBtn" class="btn btn-outline-light btn-sm">Next ➡</button>
+        <button id="nextBtn" class="btn btn-outline-light btn-sm">
+          Next ➡
+        </button>
+
       </div>
 
-      <!-- Loading spinner -->
+      <!-- Loader -->
       <div id="loader" class="text-center d-none">
         <div class="spinner-border text-warning"></div>
         <p class="mt-2">Loading questions...</p>
       </div>
 
-      <!-- Quiz content area -->
+      <!-- Quiz Box -->
       <div id="quizBox"></div>
 
-      <!-- Score display -->
+      <!-- Score -->
       <div id="scoreBox" class="text-center fw-bold mt-3"></div>
 
     </section>
@@ -172,20 +184,56 @@
 
       <h2 class="fw-bold mb-3">🎉 Quiz Completed</h2>
 
-      <!-- Results summary box -->
+      <!-- Results Box -->
       <div class="results-box p-4 rounded-4 mb-3">
+
         <div id="finalScore"></div>
+
         <div id="statsBox" class="mt-4"></div>
-        <div id="leaderboard" class="mt-4"></div>
+
       </div>
 
-      <!-- Answer review section -->
+      <!-- Answer Review -->
       <div id="reviewAnswers" class="text-start mb-4"></div>
 
-      <!-- Action buttons -->
+      <!-- Buttons -->
       <div class="d-flex justify-content-center gap-2">
-        <button id="restartBtn" class="btn btn-success">🔁 Play Again</button>
-        <button id="homeBtn" class="btn btn-light">🏠 Back to Home</button>
+
+        <button id="restartBtn" class="btn btn-success">
+          🔁 Play Again
+        </button>
+
+        <button id="leaderboardBtn" class="btn btn-warning">
+          🏆 Leaderboard
+        </button>
+
+        <button id="homeBtn" class="btn btn-light">
+          🏠 Back to Home
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- ================= LEADERBOARD PAGE ================= -->
+    <section id="leaderboardPage" class="d-none text-center">
+
+      <h2 class="fw-bold mb-4">🏆 Leaderboard</h2>
+
+      <!-- Leaderboard Box -->
+      <div class="results-box p-4 rounded-4 mb-4">
+
+        <div id="leaderboard"></div>
+
+      </div>
+
+      <!-- Navigation -->
+      <div class="d-flex justify-content-center gap-2">
+
+        <button id="leaderboardHomeBtn" class="btn btn-light">
+          🏠 Back to Home
+        </button>
+
       </div>
 
     </section>
@@ -193,10 +241,10 @@
   </div>
 </div>
 
-<!-- Toast notification container -->
+<!-- Toast -->
 <div id="toast" class="toast-message"></div>
 
-<!-- Main JavaScript file -->
+<!-- Main JS -->
 <script src="assets/js/script.js"></script>
 
 </body>
