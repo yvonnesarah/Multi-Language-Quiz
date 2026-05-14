@@ -3,6 +3,9 @@
    (Global state used across the app)
 ========================= */
 
+// Bootstrap welcome modal instance
+let welcomeModal;
+
 // Tracks how many correct answers the player gets
 let score = 0;
 
@@ -96,13 +99,53 @@ function shuffle(arr) {
   return a;
 }
 
-
 /* =========================
         INIT (DOM READY)
    Setup event listeners and theme
 ========================= */
 
 $(document).ready(function () {
+
+  /* =========================
+   INIT WELCOME MODAL
+========================= */
+
+welcomeModal = new bootstrap.Modal(
+  document.getElementById("welcomeModal")
+);
+
+// Show modal on initial home page load
+welcomeModal.show();
+
+  /* =========================
+   THEME INITIALIZATION
+========================= */
+
+// Load saved theme from localStorage
+if (localStorage.getItem("theme") === "light") {
+
+  $("body").addClass("light-mode");
+
+}
+
+/* =========================
+   THEME TOGGLE
+========================= */
+
+$("#themeToggle").click(function () {
+
+  // Toggle light mode class
+  $("body").toggleClass("light-mode");
+
+  // Save current theme
+  const currentTheme =
+    $("body").hasClass("light-mode")
+      ? "light"
+      : "dark";
+
+  localStorage.setItem("theme", currentTheme);
+
+});
 
   // =========================
   // LEADERBOARD NAVIGATION
@@ -121,9 +164,15 @@ $(document).ready(function () {
   });
 
   // Return back to home page
-  $("#leaderboardHomeBtn").click(function () {
-    showPage("homePage");
-  });
+$("#leaderboardHomeBtn").click(function () {
+
+  // Return to homepage
+  showPage("homePage");
+
+  // Open modal
+  welcomeModal.show();
+
+});
 
   // Start quiz button
   $("#startBtn").click(loadQuiz);
@@ -140,24 +189,6 @@ $(document).ready(function () {
 
   // Pause/resume button
   $("#pauseBtn").click(togglePause);
-
-  // Load saved theme preference from localStorage
-  if (localStorage.getItem("theme") === "light") {
-    $("body").addClass("light-mode");
-  }
-
-  // Toggle between light and dark mode
-  $("#themeToggle").click(function () {
-
-    // Toggle class on body
-    $("body").toggleClass("light-mode");
-
-    // Save selected theme
-    localStorage.setItem(
-      "theme",
-      $("body").hasClass("light-mode") ? "light" : "dark"
-    );
-  });
 
 
   /* =========================
@@ -202,8 +233,10 @@ function goHome() {
 
   // Show home page
   showPage("homePage");
-}
 
+  // Show welcome modal again
+  welcomeModal.show();
+}
 
 /* =========================
          LOAD QUIZ

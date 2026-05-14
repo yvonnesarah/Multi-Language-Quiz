@@ -570,3 +570,61 @@ body:not(.light-mode) .option-btn {
   background: #ffffff;
   border: 1px solid rgba(0,0,0,0.08);
 }
+
+/* =========================
+   WELCOME MODAL
+========================= */
+
+/* Default Dark Theme Modal */
+.custom-modal {
+  background: rgba(27, 42, 74, 0.96);
+  backdrop-filter: blur(14px);
+  color: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  transition: 0.3s ease;
+}
+
+/* Dark theme text */
+.custom-modal .modal-body,
+.custom-modal .modal-title {
+  color: #ffffff;
+}
+
+/* Highlight title */
+.custom-modal .modal-title {
+  color: #ffc107;
+}
+
+/* Dark theme close icon */
+.custom-modal .btn-close {
+  filter: invert(1);
+}
+
+/* =========================
+   LIGHT MODE MODAL
+========================= */
+
+.light-mode .custom-modal {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* Light mode text */
+.light-mode .custom-modal .modal-body,
+.light-mode .custom-modal .modal-title {
+  color: #1a1a1a;
+}
+
+/* Keep yellow heading in light mode */
+.light-mode .custom-modal .modal-title {
+  color: #ff9800;
+}
+
+/* Light mode close icon */
+.light-mode .custom-modal .btn-close {
+  filter: invert(0);
+}
