@@ -60,7 +60,7 @@ No installation is required to use the app. It is hosted online and can be acces
 ## 🔗 Live Demo & Repository
 Application can be viewed here: 
 * 🌐 Live: https://yvonnesarah.github.io/Multi-Language-Quiz/
-* 💻 Repository: https://github.com/yvonnesarah/https://github.com/yvonnesarah/Multi-Language-Quiz
+* 💻 Repository: https://github.com/yvonnesarah/Multi-Language-Quiz
 
 ## 🖼 Screenshot(S)
 Before Design
