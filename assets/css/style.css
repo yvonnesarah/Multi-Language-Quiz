@@ -2,25 +2,34 @@
    GLOBAL BASE (DARK MODE)
 ========================= */
 
-/* Default dark theme background + text setup */
+/* 
+  Applies the default dark theme styling across the entire app.
+  Uses a diagonal gradient background with white text for contrast.
+*/
 body {
   background: linear-gradient(135deg, #121826, #1b2a4a); /* dark gradient background */
-  min-height: 100vh;
+  min-height: 100vh; /* ensures full viewport height */
   color: white; /* default text color */
-  transition: 0.3s ease; /* smooth theme switching */
+  transition: 0.3s ease; /* smooth transition between themes */
 }
 
 /* =========================
    LIGHT MODE BASE
 ========================= */
 
-/* Overrides global styles when .light-mode is active */
+/* 
+  Light theme override.
+  Activated when the `.light-mode` class is added to the body or wrapper.
+*/
 .light-mode {
   background: linear-gradient(135deg, #f7f7f9, #e6e9ef); /* soft light gradient */
   color: #1a1a1a; /* dark text for readability */
 }
 
-/* Ensure all major text elements switch to dark in light mode */
+/* 
+  Ensures headings, paragraphs, labels, and small text
+  become dark in light mode for proper contrast.
+*/
 .light-mode h1,
 .light-mode h2,
 .light-mode h3,
@@ -36,16 +45,22 @@ body {
    GLASS CONTAINER
 ========================= */
 
-/* Frosted glass effect container (dark mode) */
+/* 
+  Frosted glass effect container used throughout the UI.
+  Gives a modern translucent appearance in dark mode.
+*/
 .glass {
-  background: rgba(255, 255, 255, 0.06); /* translucent overlay */
-  backdrop-filter: blur(14px); /* blur behind element */
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
-  transition: 0.3s ease;
+  background: rgba(255, 255, 255, 0.06); /* semi-transparent white overlay */
+  backdrop-filter: blur(14px); /* blur effect behind container */
+  border-radius: 20px; /* rounded corners */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35); /* soft shadow depth */
+  transition: 0.3s ease; /* smooth visual transitions */
 }
 
-/* Light mode glass becomes more solid and clean */
+/* 
+  Light mode version of the glass container.
+  Uses a cleaner solid white appearance.
+*/
 .light-mode .glass {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(0,0,0,0.05);
@@ -56,7 +71,10 @@ body {
    BOXES (SETTINGS, RESULTS, QUESTIONS)
 ========================= */
 
-/* Shared card styling for UI sections */
+/* 
+  Shared card styles for major UI sections:
+  settings panel, results area, and question cards.
+*/
 .settings-box,
 .results-box,
 .question-card {
@@ -65,7 +83,9 @@ body {
   border-radius: 15px;
 }
 
-/* Light mode version of cards */
+/* 
+  Light mode card appearance.
+*/
 .light-mode .settings-box,
 .light-mode .results-box,
 .light-mode .question-card {
@@ -77,46 +97,60 @@ body {
    QUESTION CARD
 ========================= */
 
-/* Main quiz question container */
+/* 
+  Main container for quiz questions.
+  Includes spacing and entry animation.
+*/
 .question-card {
   padding: 20px;
   margin-bottom: 20px;
-  animation: fadeIn 0.3s ease; /* entry animation */
+  animation: fadeIn 0.3s ease;
 }
 
-/* Difficulty indicators using colored left borders */
-.easy { border-left: 5px solid #28a745; }    /* green */
-.medium { border-left: 5px solid #ffc107; }  /* yellow */
-.hard { border-left: 5px solid #dc3545; }    /* red */
+/* 
+  Difficulty indicators using colored left borders.
+*/
+.easy { border-left: 5px solid #28a745; }    /* Easy = green */
+.medium { border-left: 5px solid #ffc107; }  /* Medium = yellow */
+.hard { border-left: 5px solid #dc3545; }    /* Hard = red */
 
 /* =========================
    OPTION BUTTONS
 ========================= */
 
-/* Base option button styling */
+/* 
+  Base styling for all answer option buttons.
+*/
 .option-btn {
-  width: 100%;
-  margin-top: 10px;
-  text-align: left;
-  transition: all 0.2s ease;
-  border: none;
+  width: 100%; /* full width button */
+  margin-top: 10px; /* spacing between options */
+  text-align: left; /* aligns text naturally */
+  transition: all 0.2s ease; /* smooth hover/feedback animations */
+  border: none; /* removes default button border */
 }
 
-/* DARK MODE option buttons (light cards on dark bg) */
+/* 
+  Dark mode option buttons.
+  Bright buttons improve readability against dark backgrounds.
+*/
 body:not(.light-mode) .option-btn {
   background: rgba(255, 255, 255, 0.94) !important;
   color: #111 !important;
   font-weight: 500;
 }
 
-/* LIGHT MODE option buttons */
+/* 
+  Light mode option buttons.
+*/
 .light-mode .option-btn {
   background: #ffffff;
   color: #1a1a1a;
   border: 1px solid rgba(0,0,0,0.1);
 }
 
-/* Hover effect for interaction feedback */
+/* 
+  Slight zoom hover effect for interaction feedback.
+*/
 .option-btn:hover {
   transform: scale(1.01);
 }
@@ -125,7 +159,9 @@ body:not(.light-mode) .option-btn {
    ANSWER STATES
 ========================= */
 
-/* Correct answer styling */
+/* 
+  Styling applied when the user selects the correct answer.
+*/
 .correct {
   background: #00e676 !important;
   color: #0a0a0a !important;
@@ -135,7 +171,9 @@ body:not(.light-mode) .option-btn {
   transform: scale(1.02);
 }
 
-/* Wrong answer styling */
+/* 
+  Styling applied when the user selects the wrong answer.
+*/
 .wrong {
   background: #ff3b30 !important;
   color: #ffffff !important;
@@ -145,7 +183,9 @@ body:not(.light-mode) .option-btn {
   transform: scale(1.02);
 }
 
-/* Light mode overrides for answer states */
+/* 
+  Simplified correct answer styling for light mode.
+*/
 .light-mode .correct {
   background: #28a745 !important;
   color: white !important;
@@ -153,6 +193,9 @@ body:not(.light-mode) .option-btn {
   transform: none;
 }
 
+/* 
+  Simplified wrong answer styling for light mode.
+*/
 .light-mode .wrong {
   background: #dc3545 !important;
   color: white !important;
@@ -160,7 +203,9 @@ body:not(.light-mode) .option-btn {
   transform: none;
 }
 
-/* Smooth transitions for feedback states */
+/* 
+  Shared smooth transitions for answer feedback effects.
+*/
 .option-btn,
 .correct,
 .wrong {
@@ -171,18 +216,24 @@ body:not(.light-mode) .option-btn {
    PROGRESS BAR
 ========================= */
 
-/* Progress container */
+/* 
+  Outer progress bar container.
+*/
 .progress {
   height: 10px;
   background: rgba(255,255,255,0.2);
 }
 
-/* Light mode progress background */
+/* 
+  Light mode progress container styling.
+*/
 .light-mode .progress {
   background: rgba(0,0,0,0.08);
 }
 
-/* Progress fill color */
+/* 
+  Inner progress fill color.
+*/
 .progress-bar {
   background: #ffc107;
 }
@@ -191,7 +242,9 @@ body:not(.light-mode) .option-btn {
    TIMER BAR
 ========================= */
 
-/* Timer container */
+/* 
+  Timer wrapper container.
+*/
 .timer-bar {
   height: 6px;
   background: rgba(255,255,255,0.2);
@@ -199,12 +252,17 @@ body:not(.light-mode) .option-btn {
   overflow: hidden;
 }
 
-/* Light mode timer background */
+/* 
+  Light mode timer background.
+*/
 .light-mode .timer-bar {
   background: rgba(0,0,0,0.08);
 }
 
-/* Animated shrinking timer fill */
+/* 
+  Animated timer fill element.
+  Width decreases over time.
+*/
 #timerBarFill {
   height: 100%;
   width: 100%;
@@ -216,7 +274,9 @@ body:not(.light-mode) .option-btn {
    REVIEW CARDS
 ========================= */
 
-/* Review section cards */
+/* 
+  Review cards displayed after quiz completion.
+*/
 .review-card {
   background: rgba(255,255,255,0.06);
   padding: 15px;
@@ -224,7 +284,9 @@ body:not(.light-mode) .option-btn {
   margin-bottom: 15px;
 }
 
-/* Light mode review cards */
+/* 
+  Light mode review cards.
+*/
 .light-mode .review-card {
   background: #ffffff;
   border: 1px solid rgba(0,0,0,0.08);
@@ -234,20 +296,26 @@ body:not(.light-mode) .option-btn {
    BUTTONS (LIGHT MODE FIXES)
 ========================= */
 
-/* Light mode button styling overrides */
+/* 
+  Fixes Bootstrap light buttons in light mode.
+*/
 .light-mode .btn-light {
   background: #ffffff;
   color: #1a1a1a;
   border: 1px solid rgba(0,0,0,0.1);
 }
 
-/* Outline button adjustments */
+/* 
+  Outline button adjustments for light mode.
+*/
 .light-mode .btn-outline-light {
   color: #1a1a1a;
   border-color: rgba(0,0,0,0.2);
 }
 
-/* Hover effect for outline buttons */
+/* 
+  Hover effect for outline buttons.
+*/
 .light-mode .btn-outline-light:hover {
   background: rgba(0,0,0,0.05);
 }
@@ -256,7 +324,9 @@ body:not(.light-mode) .option-btn {
    FORM CONTROLS
 ========================= */
 
-/* Inputs in light mode */
+/* 
+  Input fields and select dropdown styling in light mode.
+*/
 .light-mode .form-control,
 .light-mode .form-select {
   background: #ffffff;
@@ -264,7 +334,9 @@ body:not(.light-mode) .option-btn {
   border: 1px solid rgba(0,0,0,0.2);
 }
 
-/* Dropdown options */
+/* 
+  Dropdown menu options styling.
+*/
 .light-mode .form-select option {
   background: #ffffff;
   color: #1a1a1a;
@@ -274,29 +346,39 @@ body:not(.light-mode) .option-btn {
    LAYOUT
 ========================= */
 
-/* Main container width limit */
+/* 
+  Restricts maximum page width for better readability.
+*/
 .container {
   max-width: 1100px;
 }
 
-/* Padding for settings panel */
+/* 
+  Adds spacing inside the settings panel.
+*/
 .settings-box {
   padding: 30px;
 }
 
-/* Labels styling */
+/* 
+  Form label styling.
+*/
 .form-label {
   font-weight: 600;
   margin-bottom: 8px;
 }
 
-/* Select dropdown styling */
+/* 
+  Dropdown styling improvements.
+*/
 .form-select {
   padding: 10px;
   border-radius: 10px;
 }
 
-/* Start button spacing */
+/* 
+  Start button sizing and rounded appearance.
+*/
 #startBtn {
   padding: 14px;
   border-radius: 12px;
@@ -306,17 +388,28 @@ body:not(.light-mode) .option-btn {
    ANIMATIONS
 ========================= */
 
-/* Fade in effect for elements */
+/* 
+  Simple fade-in animation used for cards and content.
+*/
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(8px); 
+  }
+
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 /* =========================
    TOAST NOTIFICATIONS
 ========================= */
 
-/* Base toast message styling */
+/* 
+  Base toast notification styling.
+*/
 .toast-message {
   position: fixed;
   bottom: 30px;
@@ -332,19 +425,25 @@ body:not(.light-mode) .option-btn {
   z-index: 9999;
 }
 
-/* Toast visibility toggle */
+/* 
+  Visible state for toast notifications.
+*/
 .toast-show {
   opacity: 1;
   transform: translateX(-50%) translateY(-10px);
 }
 
-/* Success toast */
+/* 
+  Success notification appearance.
+*/
 .toast-correct {
   background: #00c853;
   box-shadow: 0 0 15px rgba(0,255,136,0.4);
 }
 
-/* Error toast */
+/* 
+  Error notification appearance.
+*/
 .toast-wrong {
   background: #ff3b30;
   box-shadow: 0 0 15px rgba(255,59,48,0.4);
@@ -354,14 +453,18 @@ body:not(.light-mode) .option-btn {
    FEEDBACK ANIMATIONS
 ========================= */
 
-/* Pop effect for correct answers */
+/* 
+  Pop animation for correct answer feedback.
+*/
 @keyframes pop {
   0% { transform: scale(1); }
   50% { transform: scale(1.06); }
   100% { transform: scale(1); }
 }
 
-/* Shake effect for wrong answers */
+/* 
+  Shake animation for wrong answer feedback.
+*/
 @keyframes shake {
   0% { transform: translateX(0); }
   25% { transform: translateX(-5px); }
@@ -370,7 +473,9 @@ body:not(.light-mode) .option-btn {
   100% { transform: translateX(0); }
 }
 
-/* Utility animation classes */
+/* 
+  Utility animation classes.
+*/
 .pop { animation: pop 0.3s ease; }
 .shake { animation: shake 0.3s ease; }
 
@@ -378,19 +483,22 @@ body:not(.light-mode) .option-btn {
    MOBILE RESPONSIVE
 ========================= */
 
+/* 
+  Responsive adjustments for tablets and mobile devices.
+*/
 @media(max-width:768px){
 
-  /* Reduce padding for glass containers */
+  /* Reduce glass container padding */
   .glass {
     padding: 15px;
   }
 
-  /* Smaller headings on mobile */
+  /* Smaller heading size for mobile screens */
   h1 {
     font-size: 1.8rem;
   }
 
-  /* Better touch targets for buttons */
+  /* Improve touch interaction on mobile buttons */
   .option-btn {
     font-size: 0.95rem;
     padding: 12px;
@@ -401,47 +509,63 @@ body:not(.light-mode) .option-btn {
    PAGE TRANSITIONS
 ========================= */
 
-/* Page fade animation */
+/* 
+  Smooth fade animation when switching pages.
+*/
 #homePage,
 #quizPage,
 #resultsPage {
   animation: fadePage 0.35s ease;
 }
 
-/* Page transition keyframes */
+/* 
+  Page transition keyframes.
+*/
 @keyframes fadePage {
   from {
     opacity: 0;
     transform: translateY(15px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Question card slide animation */
+/* 
+  Slide + fade animation for question cards.
+*/
 .question-card {
   animation: slideFade 0.35s ease;
 }
 
-/* Slide fade keyframes */
+/* 
+  Slide fade animation keyframes.
+*/
 @keyframes slideFade {
   from {
     opacity: 0;
     transform: translateX(25px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
   }
 }
 
+/* 
+  Empty leaderboard / placeholder board styling.
+*/
 .empty-board {
   background: rgba(255,255,255,0.06);
   border-radius: 14px;
 }
 
+/* 
+  Light mode empty board styling.
+*/
 .light-mode .empty-board {
   background: #ffffff;
   border: 1px solid rgba(0,0,0,0.08);
